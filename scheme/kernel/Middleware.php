@@ -96,7 +96,20 @@ class Middleware
             throw new Exception("Middleware [$middleware] not registered.");
         }
 
-        return $this->map[$middleware]->handle($next);
+        $class = $this->map[$middleware];
+
+        if (is_string($class)) {
+            $middleware_file = APP_DIR . 'middlewares/' . $class . '.php';
+
+        if (!file_exists($middleware_file)) {
+            throw new RuntimeException("Middleware file [$class.php] not found.");
+        }
+
+        require_once $middleware_file;
+
+        $class = new $class();
+    }
+
+        return $class->handle($next);
     }
 }
-

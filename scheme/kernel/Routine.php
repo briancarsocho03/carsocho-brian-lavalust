@@ -257,27 +257,34 @@ if (!function_exists('get_config')) {
      * @return array
      */
     function get_config(?array $new_config = null)
-    {
-        static $config = null;
+{
+    static $config = null;
 
-        if ($config === null) {
-            // Load main config.php first
-            $main_file = APP_DIR . 'config/config.php';
+    if ($config === null) {
+        // Load main config.php first
+        $main_file = APP_DIR . 'config/config.php';
 
-            require_once($main_file); // must define $config array
+        require_once($main_file);
 
-            if (!isset($config) || !is_array($config)) {
-                throw new RuntimeException('config.php must define $config array');
-            }
+        if (!isset($config) || !is_array($config)) {
+            throw new RuntimeException('config.php must define $config array');
         }
 
-        // Merge new configs if provided
-        if (is_array($new_config)) {
-            $config = array_merge($config, $new_config);
-        }
+        // Load middleware configuration
+        $middleware_file = APP_DIR . 'config/middleware.php';
 
-        return $config;
+        if (file_exists($middleware_file)) {
+            require_once($middleware_file);
+        }
     }
+
+    // Merge new configs if provided
+    if (is_array($new_config)) {
+        $config = array_merge($config, $new_config);
+    }
+
+    return $config;
+}
 }
 
 if ( ! function_exists('config_item'))
