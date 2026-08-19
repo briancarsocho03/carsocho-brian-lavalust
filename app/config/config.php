@@ -79,7 +79,7 @@ $config['environment'] = getenv('APP_ENV') ?: 'development';
 | WARNING: You MUST set this value!
 |
 */
-$config['base_url'] = 'https://my-student-system.onrender.com';
+$config['base_url'] = 'https://carsocho-brian.onrender.com';
 
 /*
 |--------------------------------------------------------------------------
