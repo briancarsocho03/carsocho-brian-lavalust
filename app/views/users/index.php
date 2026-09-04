@@ -31,6 +31,22 @@
             font-weight: 600;
         }
 
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 18px;
+            background-color: #4a90e2;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-button:hover {
+            background-color: #357abd;
+        }
+
         .table-responsive {
             overflow-x: auto;
         }
@@ -91,6 +107,11 @@
 <body>
 
     <div class="container">
+
+        <a href="<?= site_url('student'); ?>" class="back-button">
+            ← Back to Student Home
+        </a>
+
         <h1>Users List</h1>
 
         <div class="table-responsive">
