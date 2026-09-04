@@ -137,6 +137,7 @@
             font-size: 14px;
             font-weight: bold;
             transition: 0.3s;
+            margin-right: 10px;
         }
 
         .button:hover {
@@ -169,6 +170,7 @@
             .nav-links {
                 flex-direction: row;
                 justify-content: center;
+                flex-wrap: wrap;
             }
 
             .nav-links a {
@@ -187,65 +189,99 @@
             .student-card {
                 grid-template-columns: 1fr;
             }
+
+            .button {
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
 
 <body>
+
     <nav class="navbar">
+
         <div class="logo">
             Student Portal
         </div>
+
         <div class="nav-links">
             <a href="<?= site_url('student'); ?>">Home</a>
             <a href="<?= site_url('student/profile'); ?>">Profile</a>
+            <a href="<?= site_url('users'); ?>">Users List</a>
         </div>
+
     </nav>
+
     <main class="container">
+
         <?php if (isset($_SESSION['middleware_message'])): ?>
+
             <div class="message">
                 <?= $_SESSION['middleware_message']; ?>
             </div>
+
             <?php unset($_SESSION['middleware_message']); ?>
+
         <?php endif; ?>
+
         <section class="welcome">
+
             <h1>Welcome, <?= $student['name']; ?>!</h1>
+
             <p>
                 Welcome to your student information page.
             </p>
+
             <div class="student-card">
+
                 <p>
                     <strong>Student ID</strong>
                     <?= $student['student_id']; ?>
                 </p>
+
                 <p>
                     <strong>Course</strong>
                     <?= $student['course']; ?>
                 </p>
+
                 <p>
                     <strong>Year Level</strong>
                     <?= $student['year']; ?>
                 </p>
+
                 <p>
                     <strong>Section</strong>
                     <?= $student['section']; ?>
                 </p>
+
                 <p>
                     <strong>Email</strong>
                     <?= $student['email']; ?>
                 </p>
+
                 <p>
                     <strong>Contact Number</strong>
                     <?= $student['contact']; ?>
                 </p>
+
             </div>
+
             <a class="button" href="<?= site_url('student/profile'); ?>">
                 View Student Profile
             </a>
+
+            <a class="button" href="<?= site_url('users'); ?>">
+                Users List
+            </a>
+
         </section>
+
         <footer>
             Student Information System
         </footer>
+
     </main>
+
 </body>
 </html>
