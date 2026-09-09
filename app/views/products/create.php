@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Edit Product</title>
+    <title>Add Product</title>
 
     <style>
         * {
@@ -88,7 +88,7 @@
             margin-top: 5px;
         }
 
-        /* FORM */
+        /* FORM CARD */
 
         .card {
             background: white;
@@ -164,6 +164,7 @@
         }
 
         @media (max-width: 768px) {
+
             .sidebar {
                 width: 200px;
             }
@@ -198,7 +199,7 @@
             📦 Products
         </a>
 
-        <a href="<?= site_url('products/create'); ?>">
+        <a href="<?= site_url('products/create'); ?>" class="active">
             ➕ Add Product
         </a>
 
@@ -221,16 +222,16 @@
     </aside>
 
 
-    <!-- MAIN -->
+    <!-- MAIN CONTENT -->
 
     <main class="main">
 
         <div class="topbar">
 
-            <h1>Edit Product</h1>
+            <h1>Add Product</h1>
 
             <p>
-                Update the information of this product.
+                Add a new product to your inventory.
             </p>
 
         </div>
@@ -238,10 +239,7 @@
 
         <div class="card">
 
-            <form
-                action="<?= site_url('products/update/' . $product['id']); ?>"
-                method="POST"
-            >
+            <form action="<?= site_url('products/store'); ?>" method="POST">
 
                 <div class="form-group">
 
@@ -253,7 +251,7 @@
                         type="text"
                         id="product_name"
                         name="product_name"
-                        value="<?= htmlspecialchars($product['product_name']); ?>"
+                        placeholder="Enter product name"
                         required
                     >
 
@@ -269,7 +267,8 @@
                     <textarea
                         id="description"
                         name="description"
-                    ><?= htmlspecialchars($product['description']); ?></textarea>
+                        placeholder="Enter product description"
+                    ></textarea>
 
                 </div>
 
@@ -286,7 +285,7 @@
                         name="price"
                         step="0.01"
                         min="0"
-                        value="<?= htmlspecialchars($product['price']); ?>"
+                        placeholder="Enter price"
                         required
                     >
 
@@ -304,7 +303,7 @@
                         id="quantity"
                         name="quantity"
                         min="0"
-                        value="<?= htmlspecialchars($product['quantity']); ?>"
+                        placeholder="Enter quantity"
                         required
                     >
 
@@ -314,7 +313,7 @@
                 <div class="buttons">
 
                     <button type="submit">
-                        Update Product
+                        Add Product
                     </button>
 
                     <a
@@ -335,4 +334,4 @@
 
 </body>
 
-</html> 
+</html>
