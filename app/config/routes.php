@@ -53,14 +53,26 @@ $router->get('/student/profile', 'StudentController::profile')
 
 $router->get('/users', 'UsersController::index');
 
-$router->get('/products', 'ProductController::index');
+$router->get('/login', 'AuthController::login');
 
-$router->get('/products/create', 'ProductController::create');
+$router->post('/login/authenticate', 'AuthController::authenticate');
 
-$router->post('/products/store', 'ProductController::store');
+$router->get('/logout', 'AuthController::logout');
 
-$router->get('/products/edit/{id}', 'ProductController::edit');
+$router->get('/products', 'ProductController::index')
+       ->middleware('auth');
 
-$router->post('/products/update/{id}', 'ProductController::update');
+$router->get('/products/create', 'ProductController::create')
+       ->middleware('auth');
 
-$router->get('/products/delete/{id}', 'ProductController::delete');
+$router->post('/products/store', 'ProductController::store')
+       ->middleware('auth');
+
+$router->get('/products/edit/{id}', 'ProductController::edit')
+       ->middleware('auth');
+
+$router->post('/products/update/{id}', 'ProductController::update')
+       ->middleware('auth');
+
+$router->get('/products/delete/{id}', 'ProductController::delete')
+       ->middleware('auth');
