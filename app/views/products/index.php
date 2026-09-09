@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -415,6 +414,31 @@
             transform: translateY(-1px);
         }
 
+        .back-section {
+            margin-top: 22px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            background: white;
+            color: #2563eb;
+            border: 1px solid #dbeafe;
+            text-decoration: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .back-button:hover {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            transform: translateY(-2px);
+        }
+
         footer {
             color: #94a3b8;
             font-size: 12px;
@@ -508,6 +532,11 @@
                 align-items: flex-start;
                 gap: 5px;
                 flex-direction: column;
+            }
+
+            .back-button {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -707,6 +736,15 @@
 
         </div>
 
+        <div class="back-section">
+
+            <a href="<?= site_url('student'); ?>" class="back-button">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Student Home
+            </a>
+
+        </div>
+
         <footer>
             Product Management System
         </footer>
@@ -716,4 +754,3 @@
 </body>
 
 </html>
-```
