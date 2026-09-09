@@ -1,9 +1,10 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Student Home</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -178,7 +179,7 @@
             position: absolute;
             width: 220px;
             height: 220px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 50%;
             right: -60px;
             top: -90px;
@@ -189,7 +190,7 @@
             position: absolute;
             width: 150px;
             height: 150px;
-            background: rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.06);
             border-radius: 50%;
             right: 130px;
             bottom: -90px;
@@ -217,7 +218,7 @@
         }
 
         .welcome > p {
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
         }
 
@@ -407,6 +408,7 @@
             }
         }
     </style>
+
 </head>
 
 <body>
@@ -429,6 +431,7 @@
         </div>
 
         <div class="nav-links">
+
             <a href="<?= site_url('student'); ?>">
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
@@ -443,6 +446,7 @@
                 <i class="fa-solid fa-users"></i>
                 <span>Users List</span>
             </a>
+
         </div>
 
     </nav>
@@ -462,7 +466,9 @@
         <section class="welcome">
 
             <div class="welcome-header">
+
                 <div class="welcome-content">
+
                     <div class="welcome-label">
                         Student Dashboard
                     </div>
@@ -474,7 +480,9 @@
                     <p>
                         Here's an overview of your student information.
                     </p>
+
                 </div>
+
             </div>
 
             <div class="section-heading">
@@ -528,6 +536,11 @@
                     Users List
                 </a>
 
+                <a class="button secondary" href="<?= site_url('products'); ?>">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    Products
+                </a>
+
             </div>
 
         </section>
@@ -539,5 +552,5 @@
     </main>
 
 </body>
+
 </html>
-```
