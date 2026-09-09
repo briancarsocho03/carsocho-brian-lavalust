@@ -488,23 +488,6 @@
 
             </form>
 
-            <div class="credentials">
-
-                <div class="credentials-title">
-                    <i class="fa-solid fa-circle-info"></i>
-                    Laboratory Account
-                </div>
-
-                <div>
-                    <strong>Username:</strong> admin
-                </div>
-
-                <div>
-                    <strong>Password:</strong> admin123
-                </div>
-
-            </div>
-
         </div>
 
         <div class="footer">
