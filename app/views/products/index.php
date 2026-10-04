@@ -587,9 +587,9 @@
         </a>
 
         <a href="<?= site_url('logout'); ?>">
-        <i class="fa-solid fa-right-from-bracket"></i>
-         <span>Logout</span>
-        </a>
+    <i class="fa-solid fa-right-from-bracket"></i>
+    <span>Logout</span>
+</a>
 
     </aside>
 
