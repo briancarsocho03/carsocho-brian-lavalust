@@ -26,17 +26,6 @@ class ApiController extends Controller
         exit;
     }
 
-    public function health()
-    {
-        $this->db->raw('SELECT 1')->fetchColumn();
-
-        $this->api->respond([
-            'status' => 'ok',
-            'service' => 'LavaLust API',
-            'database' => 'connected',
-        ]);
-    }
-
     public function register()
     {
         $this->api->rate_limit('register', 10, 60);
