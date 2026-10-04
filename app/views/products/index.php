@@ -586,9 +586,9 @@
             <span>Settings</span>
         </a>
 
-        <a href="#">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Logout</span>
+        <a href="<?= site_url('logout'); ?>">
+        <i class="fa-solid fa-right-from-bracket"></i>
+         <span>Logout</span>
         </a>
 
     </aside>
