@@ -7,6 +7,10 @@ class AuthMiddleware
     public function handle(Closure $next)
     {
         if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+            header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
             return $next();
         }
 
