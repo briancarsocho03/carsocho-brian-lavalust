@@ -6,7 +6,18 @@ class AuthController extends Controller
 {
     public function login()
     {
-        $this->call->view('auth/login');
+        if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+            redirect('products');
+        }
+
+        $data = [];
+
+        if (isset($_SESSION['auth_message'])) {
+            $data['error'] = $_SESSION['auth_message'];
+            unset($_SESSION['auth_message']);
+        }
+
+        $this->call->view('auth/login', $data);
     }
 
     public function authenticate()
@@ -17,6 +28,7 @@ class AuthController extends Controller
         // Simple credentials for the laboratory exercise
         if ($username === 'admin' && $password === 'admin123') {
 
+            session_regenerate_id(true);
             $_SESSION['logged_in'] = true;
 
             redirect('products');
