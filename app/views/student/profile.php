@@ -512,13 +512,6 @@
 
             </div>
 
-            <div class="actions">
-                <a class="back-button" href="<?= site_url('student'); ?>">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Back to Student Home
-                </a>
-            </div>
-
         </section>
 
         <footer>

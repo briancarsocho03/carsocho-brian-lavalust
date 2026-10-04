@@ -24,12 +24,12 @@ class Create_chat_table {
         ]);
 
         $this->_lava->dbforge->add_key('id', TRUE);
-        $this->_lava->dbforge->create_table('your_table_name');
+        $this->_lava->dbforge->create_table('');
     }
 
     public function down()
     {
         // Write your "DOWN" migration here
-        $this->_lava->dbforge->drop_table('your_table_name');
+        $this->_lava->dbforge->drop_table('');
     }
 }

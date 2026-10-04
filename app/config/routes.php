@@ -44,7 +44,7 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 /** @var object $router **/
 
-$router->get('/', 'StudentController::index');
+$router->get('/', 'AuthController::login');
 
 $router->get('/student', 'StudentController::index');
 
@@ -58,6 +58,35 @@ $router->get('/login', 'AuthController::login');
 $router->post('/login/authenticate', 'AuthController::authenticate');
 
 $router->get('/logout', 'AuthController::logout');
+
+$router->post('/api/auth/register', 'ApiController::register');
+$router->post('/api/auth/login', 'ApiController::login');
+$router->post('/api/auth/refresh', 'ApiController::refresh');
+$router->post('/api/auth/logout', 'ApiController::logout');
+
+$router->options('/api/auth/register', 'ApiController::options_preflight');
+$router->options('/api/auth/login', 'ApiController::options_preflight');
+$router->options('/api/auth/refresh', 'ApiController::options_preflight');
+$router->options('/api/auth/logout', 'ApiController::options_preflight');
+
+$router->get('/api/products', 'ApiController::products')
+       ->middleware('jwt');
+
+$router->post('/api/products', 'ApiController::create_product')
+       ->middleware('jwt');
+
+$router->options('/api/products', 'ApiController::options_preflight');
+
+$router->put('/api/products/{id}', 'ApiController::update_product')
+       ->middleware('jwt');
+
+$router->patch('/api/products/{id}', 'ApiController::update_product')
+       ->middleware('jwt');
+
+$router->delete('/api/products/{id}', 'ApiController::delete_product')
+       ->middleware('jwt');
+
+$router->options('/api/products/{id}', 'ApiController::options_preflight');
 
 $router->get('/products', 'ProductController::index')
        ->middleware('auth');
@@ -77,16 +106,11 @@ $router->post('/products/update/{id}', 'ProductController::update')
 $router->get('/products/delete/{id}', 'ProductController::delete')
        ->middleware('auth');
 
-// Migration Routes
-
-$router->get('create-migration/{migration_class}', 'MigrationController::create_migration');
-
-$router->get('migrate', 'MigrationController::migrate');
-
-$router->get('rollback', 'MigrationController::rollback');
-
-$router->get('rollback-all', 'MigrationController::rollback_all');
-
-$router->get('refresh', 'MigrationController::refresh');
-
-$router->get('status', 'MigrationController::status');
+if (PHP_SAPI === 'cli' || getenv('APP_ENV') !== 'production') {
+    $router->get('create-migration/{migration_class}', 'MigrationController::create_migration');
+    $router->get('migrate', 'MigrationController::migrate');
+    $router->get('rollback', 'MigrationController::rollback');
+    $router->get('rollback-all', 'MigrationController::rollback_all');
+    $router->get('refresh', 'MigrationController::refresh');
+    $router->get('status', 'MigrationController::status');
+}

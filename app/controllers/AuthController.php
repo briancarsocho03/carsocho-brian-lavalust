@@ -25,11 +25,19 @@ class AuthController extends Controller
         $username = $this->io->post('username');
         $password = $this->io->post('password');
 
-        // Simple credentials for the laboratory exercise
-        if ($username === 'admin' && $password === 'admin123') {
+        $this->call->database();
+        $lava = lava_instance();
+        $user = $lava->db->raw(
+            'SELECT id, username, password, is_active FROM users WHERE username = ? LIMIT 1',
+            [$username]
+        )->fetch(PDO::FETCH_ASSOC);
+
+        if ($user && (int) $user['is_active'] === 1 && password_verify($password, $user['password'])) {
 
             session_regenerate_id(true);
             $_SESSION['logged_in'] = true;
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
 
             redirect('products');
 
