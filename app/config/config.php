@@ -114,7 +114,7 @@ $config['index_page']               = 'index.php';
 |   3 = All
 |
 */
-$config['log_threshold']            = 0;
+$config['log_threshold']            = 1;
 $config['log_dir']                  = 'runtime/logs/';
 
 /*
