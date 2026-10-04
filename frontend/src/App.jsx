@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
+const API_ORIGIN = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
+const API_URL = API_ORIGIN.endsWith('/index.php') ? API_ORIGIN : `${API_ORIGIN}/index.php`;
 const TOKEN_KEY = 'product-system-tokens';
 
 function readTokens() {
