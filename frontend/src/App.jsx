@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const API_ORIGIN = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
+const API_ORIGIN = (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : window.location.origin)).replace(/\/+$/, '');
 const API_URL = API_ORIGIN.endsWith('/index.php') ? API_ORIGIN : `${API_ORIGIN}/index.php`;
 const TOKEN_KEY = 'product-system-tokens';
 
@@ -115,8 +115,32 @@ export default function App() {
   const [authForm, setAuthForm] = useState({ username: '', email: '', password: '' });
   const [loading, setLoading] = useState(Boolean(tokens?.access_token));
   const [saving, setSaving] = useState(false);
+  const [apiStatus, setApiStatus] = useState('checking');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
+
+    fetch(`${API_URL}/api/health`, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`API returned HTTP ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setApiStatus(data.status === 'ok' && data.database === 'connected' ? 'online' : 'offline');
+      })
+      .catch(() => setApiStatus('offline'))
+      .finally(() => window.clearTimeout(timeout));
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeout);
+    };
+  }, []);
 
   async function loadProducts() {
     const data = await send('/api/products');
@@ -231,6 +255,7 @@ export default function App() {
           <p className="eyebrow">INVENTORY WORKSPACE</p>
           <h1>{authMode === 'login' ? 'Welcome back' : 'Create your account'}</h1>
           <p className="muted">Sign in to manage your products and stock.</p>
+          <ApiStatus status={apiStatus} />
 
           {error && <div className="alert error" role="alert">{error}</div>}
           {notice && <div className="alert success">{notice}</div>}
@@ -292,6 +317,7 @@ export default function App() {
           <span>Product<span className="brand-light">Desk</span></span>
         </a>
         <div className="account">
+          <ApiStatus status={apiStatus} />
           {user?.username && <span className="account-name">{user.username}</span>}
           <button className="button quiet" onClick={logout}>Log out</button>
         </div>
@@ -397,5 +423,20 @@ export default function App() {
         <footer>ProductDesk · LavaLust API</footer>
       </section>
     </main>
+  );
+}
+
+function ApiStatus({ status }) {
+  const label = {
+    checking: 'Checking API…',
+    online: 'API operational',
+    offline: 'API unavailable',
+  }[status];
+
+  return (
+    <div className={`api-status ${status}`} role="status" aria-live="polite">
+      <span className="api-status-dot" aria-hidden="true" />
+      {label}
+    </div>
   );
 }

@@ -26,9 +26,9 @@ button { cursor: pointer; }
   place-items: center;
   padding: 28px 16px;
   background:
-    radial-gradient(ellipse at 18% 12%, rgba(93, 129, 255, .16), transparent 34%),
-    radial-gradient(ellipse at 88% 86%, rgba(114, 90, 224, .10), transparent 30%),
-    #f6f8fc;
+    radial-gradient(ellipse at 12% 10%, rgba(62, 105, 229, .30), transparent 38%),
+    radial-gradient(ellipse at 88% 88%, rgba(35, 148, 163, .15), transparent 32%),
+    linear-gradient(135deg, #101a2d, #17243a 55%, #101827);
 }
 
 .auth-card {
@@ -66,6 +66,27 @@ h1, h2 { font-family: 'Manrope', sans-serif; }
 .auth-card h1 { margin-bottom: 8px; font-size: 29px; letter-spacing: -.04em; }
 .muted { color: var(--muted); line-height: 1.55; }
 .auth-card > .muted { margin-bottom: 28px; font-size: 14px; }
+.auth-card > .api-status { margin: -12px 0 23px; }
+
+.api-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 7px 10px;
+  border: 1px solid #e5eaf1;
+  border-radius: 999px;
+  color: #647187;
+  background: #f8fafc;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.api-status-dot { width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; }
+.api-status.online { color: #18794e; border-color: #ccebd9; background: #f0fbf4; }
+.api-status.online .api-status-dot { background: #20a464; box-shadow: 0 0 0 3px rgba(32, 164, 100, .12); }
+.api-status.offline { color: #b42338; border-color: #f2ccd1; background: #fff5f5; }
+.api-status.offline .api-status-dot { background: #d04454; }
 
 .auth-form, .product-form { display: grid; gap: 17px; }
 label { display: grid; gap: 8px; color: #3e475a; font-size: 13px; font-weight: 600; }
@@ -110,7 +131,12 @@ textarea { resize: vertical; }
 .error { color: #b42338; background: #fff2f3; border-color: #f5c7cd; }
 .success { color: #237b55; background: #effaf4; border-color: #c7ecd7; }
 
-.app-shell { min-height: 100vh; }
+.app-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(80, 116, 220, .08), transparent 34%),
+    #f4f6fb;
+}
 .topbar {
   height: 72px;
   display: flex;
