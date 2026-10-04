@@ -414,9 +414,6 @@
             transform: translateY(-1px);
         }
 
-        .back-section {
-            margin-top: 22px;
-        }
 
         .back-button {
             display: inline-flex;
