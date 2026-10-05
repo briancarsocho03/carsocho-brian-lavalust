@@ -222,6 +222,9 @@ export default function App() {
       setProducts([]);
       setEditing(null);
       setShowForm(false);
+      setAuthForm({ username: '', email: '', password: '' });
+      setPasswordVisible(false);
+      setAuthMode('login');
       setNotice(logoutError
         ? `Signed out here, but server token revocation failed: ${logoutError}`
         : 'You have been logged out.');
