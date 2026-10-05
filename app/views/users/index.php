@@ -487,8 +487,6 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
                                 <th>Email</th>
                                 <th>Username</th>
                             </tr>
@@ -500,8 +498,6 @@
 
                                 <tr>
                                     <td><?= htmlspecialchars($user['id']) ?></td>
-                                    <td><?= htmlspecialchars($user['firstname']) ?></td>
-                                    <td><?= htmlspecialchars($user['lastname']) ?></td>
                                     <td><?= htmlspecialchars($user['email']) ?></td>
                                     <td>
                                         <span class="username">
