@@ -274,7 +274,7 @@ export default function App() {
         <section className="auth-card">
           <div className="brand-mark">P</div>
           <p className="eyebrow">INVENTORY WORKSPACE</p>
-          <h1>{authMode === 'login' ? 'Welcome back' : 'Create your account'}</h1>
+          <h1>Welcome back</h1>
           <p className="muted">Sign in to manage your products and stock.</p>
           <ApiStatus status={apiStatus} />
 
@@ -291,18 +291,6 @@ export default function App() {
                 required
               />
             </label>
-            {authMode === 'register' && (
-              <label>
-                Email
-                <input
-                  type="email"
-                  value={authForm.email}
-                  onChange={(event) => setAuthForm({ ...authForm, email: event.target.value })}
-                  autoComplete="email"
-                  required
-                />
-              </label>
-            )}
             <label>
               Password
               <span className="password-field">
@@ -310,7 +298,7 @@ export default function App() {
                   type={passwordVisible ? 'text' : 'password'}
                   value={authForm.password}
                   onChange={(event) => setAuthForm({ ...authForm, password: event.target.value })}
-                  autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
+                  autoComplete="current-password"
                   minLength="8"
                   required
                 />
@@ -340,16 +328,9 @@ export default function App() {
               </span>
             </label>
             <button className="button primary full-width" disabled={saving}>
-              {saving ? 'Please wait…' : authMode === 'login' ? 'Sign in' : 'Create account'}
+              {saving ? 'Please wait…' : 'Sign in'}
             </button>
           </form>
-
-          <p className="auth-switch">
-            {authMode === 'login' ? 'New to the system?' : 'Already registered?'}{' '}
-            <button className="link-button" onClick={() => changeAuthMode(authMode === 'login' ? 'register' : 'login')}>
-              {authMode === 'login' ? 'Create an account' : 'Sign in'}
-            </button>
-          </p>
         </section>
       </main>
     );
