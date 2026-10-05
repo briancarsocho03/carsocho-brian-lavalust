@@ -113,6 +113,7 @@ export default function App() {
   const [showForm, setShowForm] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [authForm, setAuthForm] = useState({ username: '', email: '', password: '' });
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(Boolean(tokens?.access_token));
   const [saving, setSaving] = useState(false);
   const [apiStatus, setApiStatus] = useState('checking');
@@ -243,6 +244,7 @@ export default function App() {
   function changeAuthMode(mode) {
     setAuthMode(mode);
     setAuthForm({ username: '', email: '', password: '' });
+    setPasswordVisible(false);
     setError('');
     setNotice('');
   }
@@ -284,14 +286,39 @@ export default function App() {
             )}
             <label>
               Password
-              <input
-                type="password"
-                value={authForm.password}
-                onChange={(event) => setAuthForm({ ...authForm, password: event.target.value })}
-                autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
-                minLength="8"
-                required
-              />
+              <span className="password-field">
+                <input
+                  type={passwordVisible ? 'text' : 'password'}
+                  value={authForm.password}
+                  onChange={(event) => setAuthForm({ ...authForm, password: event.target.value })}
+                  autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
+                  minLength="8"
+                  required
+                />
+                <button
+                  className="password-toggle"
+                  type="button"
+                  onClick={() => setPasswordVisible((visible) => !visible)}
+                  aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+                  aria-pressed={passwordVisible}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    {passwordVisible ? (
+                      <>
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </>
+                    ) : (
+                      <>
+                        <path d="m3 3 18 18" />
+                        <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                        <path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a16 16 0 0 1-3.1 3.8" />
+                        <path d="M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10 10 0 0 0 4-.8" />
+                      </>
+                    )}
+                  </svg>
+                </button>
+              </span>
             </label>
             <button className="button primary full-width" disabled={saving}>
               {saving ? 'Please wait…' : authMode === 'login' ? 'Sign in' : 'Create account'}

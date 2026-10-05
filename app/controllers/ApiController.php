@@ -16,8 +16,8 @@ class ApiController extends Controller
         $this->call->database();
 
         $lava = lava_instance();
-        $this->api = $lava->api;
-        $this->db = $lava->db;
+        $this->api = $lava->properties['api'];
+        $this->db = $lava->properties['db'];
     }
 
     public function options_preflight()

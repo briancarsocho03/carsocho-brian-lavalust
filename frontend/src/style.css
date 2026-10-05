@@ -90,6 +90,26 @@ h1, h2 { font-family: 'Manrope', sans-serif; }
 
 .auth-form, .product-form { display: grid; gap: 17px; }
 label { display: grid; gap: 8px; color: #3e475a; font-size: 13px; font-weight: 600; }
+.password-field { position: relative; display: block; }
+.password-field input { padding-right: 46px; }
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  padding: 0;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 6px;
+  color: #8490a5;
+  background: transparent;
+}
+.password-toggle:hover { color: var(--blue); background: #f2f5ff; }
+.password-toggle:focus-visible { outline: 2px solid #6e8dff; outline-offset: 1px; }
+.password-toggle svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 input, textarea {
   width: 100%;
   padding: 12px 13px;
