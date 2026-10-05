@@ -140,12 +140,19 @@ $config['users_table'] = 'users';
 | Access-Control-Allow-Origin
 |--------------------------------------------------------------------------
 |
-| Access-Control-Allow-Origin - change this to your domain if
-| already deployed. '*' allows any website to call your API from
-| a browser, so set your real domain in production.
+| The current and previous frontend domains are allowed by default.
+| FRONTEND_URL may contain additional comma-separated origins. Setting
+| '*' allows any website to call your API from a browser.
 |
 */
-$config['allow_origin'] = getenv('FRONTEND_URL') ?: '*';
+$frontend_origins = getenv('FRONTEND_URL') ?: '';
+$config['allow_origin'] = implode(',', array_unique(array_filter(array_merge(
+    [
+        'https://carsocho-brian-lavalust-frontend.onrender.com',
+        'https://carsocho-brian-lavalust-static-site.onrender.com',
+    ],
+    array_map('trim', explode(',', $frontend_origins))
+))));
 
 /*
 |--------------------------------------------------------------------------

@@ -4,13 +4,16 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 function handle_cors()
 {
-    $allowedOrigin = config_item('allow_origin') ?: '*';
+    $allowedOrigins = config_item('allow_origin') ?: '*';
+    if (!is_array($allowedOrigins)) {
+        $allowedOrigins = array_map('trim', explode(',', $allowedOrigins));
+    }
     $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-    if ($allowedOrigin === '*') {
+    if (in_array('*', $allowedOrigins, true)) {
         header('Access-Control-Allow-Origin: *');
-    } elseif ($requestOrigin !== '' && hash_equals($allowedOrigin, $requestOrigin)) {
-        header('Access-Control-Allow-Origin: ' . $allowedOrigin);
+    } elseif ($requestOrigin !== '' && in_array($requestOrigin, $allowedOrigins, true)) {
+        header('Access-Control-Allow-Origin: ' . $requestOrigin);
         header('Vary: Origin');
     }
 
