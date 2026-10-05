@@ -28,57 +28,7 @@ class ApiController extends Controller
 
     public function register()
     {
-        $this->api->rate_limit('register', 10, 60);
-        $body = $this->json_body();
-
-        $username = trim((string) ($body['username'] ?? ''));
-        $email = trim((string) ($body['email'] ?? ''));
-        $password = (string) ($body['password'] ?? '');
-
-        if ($username === '' || strlen($username) > 100) {
-            $this->api->respond_error('Username is required and must be at most 100 characters.', 422);
-        }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 255) {
-            $this->api->respond_error('A valid email address is required.', 422);
-        }
-
-        if (strlen($password) < 8) {
-            $this->api->respond_error('Password must be at least 8 characters.', 422);
-        }
-
-        $existing = $this->db->raw(
-            'SELECT id FROM users WHERE username = ? OR email = ? LIMIT 1',
-            [$username, $email]
-        )->fetch(PDO::FETCH_ASSOC);
-
-        if ($existing) {
-            $this->api->respond_error('Username or email is already registered.', 409);
-        }
-
-        $this->db->table('users')->insert([
-            'username' => $username,
-            'email' => $email,
-            'password' => password_hash($password, PASSWORD_DEFAULT),
-            'role' => 'user',
-            'is_active' => 1,
-        ]);
-
-        $user = $this->db->raw(
-            'SELECT id, username, email, role FROM users WHERE id = ? LIMIT 1',
-            [$this->db->last_id()]
-        )->fetch(PDO::FETCH_ASSOC);
-
-        $tokens = $this->api->issue_tokens([
-            'id' => $user['id'],
-            'role' => $user['role'],
-        ]);
-
-        $this->api->respond([
-            'message' => 'Account created successfully.',
-            'user' => $user,
-            'tokens' => $tokens,
-        ], 201);
+        $this->api->respond_error('Registration is disabled. Only the admin account can log in.', 403);
     }
 
     public function login()
@@ -97,7 +47,7 @@ class ApiController extends Controller
             [$username]
         )->fetch(PDO::FETCH_ASSOC);
 
-        if (!$user || (int) $user['is_active'] !== 1 || !password_verify($password, $user['password'])) {
+        if (!$user || strtolower((string) $user['username']) !== 'admin' || (int) $user['is_active'] !== 1 || !password_verify($password, $user['password'])) {
             $this->api->respond_error('Invalid username or password.', 401);
         }
 

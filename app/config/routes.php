@@ -59,7 +59,6 @@ $router->post('/login/authenticate', 'AuthController::authenticate');
 
 $router->get('/logout', 'AuthController::logout');
 
-$router->post('/api/auth/register', 'ApiController::register');
 $router->post('/api/auth/login', 'ApiController::login');
 $router->post('/api/auth/refresh', 'ApiController::refresh');
 $router->post('/api/auth/logout', 'ApiController::logout');
@@ -67,7 +66,6 @@ $router->post('/api/auth/logout', 'ApiController::logout');
 $router->get('/api/health', 'HealthController::index');
 $router->options('/api/health', 'HealthController::index');
 
-$router->options('/api/auth/register', 'ApiController::options_preflight');
 $router->options('/api/auth/login', 'ApiController::options_preflight');
 $router->options('/api/auth/refresh', 'ApiController::options_preflight');
 $router->options('/api/auth/logout', 'ApiController::options_preflight');

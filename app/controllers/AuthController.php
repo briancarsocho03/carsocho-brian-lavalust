@@ -32,7 +32,7 @@ class AuthController extends Controller
             [$username]
         )->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && (int) $user['is_active'] === 1 && password_verify($password, $user['password'])) {
+        if ($user && strtolower((string) $user['username']) === 'admin' && (int) $user['is_active'] === 1 && password_verify($password, $user['password'])) {
 
             session_regenerate_id(true);
             $_SESSION['logged_in'] = true;
