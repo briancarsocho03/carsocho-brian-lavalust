@@ -121,25 +121,44 @@ export default function App() {
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 8000);
+    let cancelled = false;
+    let controller;
+    let timeout;
+    let retry;
 
-    fetch(`${API_URL}/api/health`, { signal: controller.signal })
-      .then((response) => {
+    async function checkHealth(attempt = 0) {
+      controller = new AbortController();
+      timeout = window.setTimeout(() => controller.abort(), 30000);
+
+      try {
+        const response = await fetch(`${API_URL}/api/health`, { signal: controller.signal });
         if (!response.ok) {
           throw new Error(`API returned HTTP ${response.status}`);
         }
-        return response.json();
-      })
-      .then((data) => {
-        setApiStatus(data.status === 'ok' && data.database === 'connected' ? 'online' : 'offline');
-      })
-      .catch(() => setApiStatus('offline'))
-      .finally(() => window.clearTimeout(timeout));
+
+        const data = await response.json();
+        if (!cancelled) {
+          setApiStatus(data.status === 'ok' && data.database === 'connected' ? 'online' : 'offline');
+        }
+      } catch {
+        if (cancelled) return;
+        if (attempt < 2) {
+          retry = window.setTimeout(() => checkHealth(attempt + 1), (attempt + 1) * 3000);
+        } else {
+          setApiStatus('offline');
+        }
+      } finally {
+        window.clearTimeout(timeout);
+      }
+    }
+
+    checkHealth();
 
     return () => {
+      cancelled = true;
       controller.abort();
       window.clearTimeout(timeout);
+      window.clearTimeout(retry);
     };
   }, []);
 
