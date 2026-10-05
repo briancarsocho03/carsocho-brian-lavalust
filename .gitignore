@@ -16,6 +16,7 @@ frontend/dist/
 runtime/*
 !runtime/.htaccess
 !runtime/index.html
+**/runtime/logs/
 *.log
 *.cache
 
