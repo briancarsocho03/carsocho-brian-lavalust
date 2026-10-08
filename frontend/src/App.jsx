@@ -3,25 +3,11 @@ import React, { useEffect, useState } from 'react';
 const API_ORIGIN = (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : 'https://carsocho-brian-lavalust.onrender.com')).replace(/\/+$/, '');
 const API_URL = API_ORIGIN.endsWith('/index.php') ? API_ORIGIN : `${API_ORIGIN}/index.php`;
 const TOKEN_KEY = 'product-system-tokens';
-const LOGIN_PATH = '/login';
-const PRODUCTS_PATH = '/products';
 
-function getRouteFromPath(pathname = window.location.pathname) {
-  if (pathname === PRODUCTS_PATH) {
-    return 'products';
+function normalizePath() {
+  if (window.location.pathname !== '/') {
+    window.history.replaceState({}, '', '/');
   }
-
-  return 'login';
-}
-
-function navigateTo(path) {
-  const nextPath = path.startsWith('/') ? path : `/${path}`;
-
-  if (window.location.pathname !== nextPath) {
-    window.history.pushState({}, '', nextPath);
-  }
-
-  return getRouteFromPath(nextPath);
 }
 
 function readTokens() {
@@ -131,7 +117,6 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [editing, setEditing] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [route, setRoute] = useState(() => getRouteFromPath());
   const [authMode, setAuthMode] = useState('login');
   const [authForm, setAuthForm] = useState({ username: '', email: '', password: '' });
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -141,29 +126,11 @@ export default function App() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const isAuthenticated = Boolean(tokens?.access_token);
-  const shouldShowLogin = !isAuthenticated || window.location.pathname === LOGIN_PATH;
+  const shouldShowLogin = !isAuthenticated;
 
   useEffect(() => {
-    const syncRoute = () => {
-      const nextRoute = getRouteFromPath();
-      setRoute(nextRoute);
-
-      if (nextRoute === 'products' && !tokens?.access_token) {
-        window.history.replaceState({}, '', LOGIN_PATH);
-        setRoute('login');
-      }
-
-      if (nextRoute === 'login' && tokens?.access_token) {
-        window.history.replaceState({}, '', PRODUCTS_PATH);
-        setRoute('products');
-      }
-    };
-
-    syncRoute();
-    window.addEventListener('popstate', syncRoute);
-
-    return () => window.removeEventListener('popstate', syncRoute);
-  }, [tokens?.access_token]);
+    normalizePath();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -241,7 +208,7 @@ export default function App() {
       saveTokens(data.tokens);
       setTokenState(data.tokens);
       setUser(data.user);
-      setRoute(navigateTo(PRODUCTS_PATH));
+      normalizePath();
       await loadProducts();
     } catch (requestError) {
       setError(requestError.message);
@@ -271,7 +238,7 @@ export default function App() {
       setAuthForm({ username: '', email: '', password: '' });
       setPasswordVisible(false);
       setAuthMode('login');
-      setRoute(navigateTo(LOGIN_PATH));
+      normalizePath();
       setNotice(logoutError
         ? `Signed out here, but server token revocation failed: ${logoutError}`
         : 'You have been logged out.');
