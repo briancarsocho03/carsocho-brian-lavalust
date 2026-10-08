@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 const API_ORIGIN = (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : 'https://carsocho-brian-lavalust.onrender.com')).replace(/\/+$/, '');
 const API_URL = API_ORIGIN.endsWith('/index.php') ? API_ORIGIN : `${API_ORIGIN}/index.php`;
 const TOKEN_KEY = 'product-system-tokens';
-const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+const currency = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' });
 
 function normalizePath() {
   if (window.location.pathname !== '/') {
