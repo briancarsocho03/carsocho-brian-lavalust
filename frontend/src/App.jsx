@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : 'https://carsocho-brian-lavalust.onrender.com')).replace(/\/+$/, '');
 const API_URL = API_ORIGIN.endsWith('/index.php') ? API_ORIGIN : `${API_ORIGIN}/index.php`;
 const TOKEN_KEY = 'product-system-tokens';
+const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
 function normalizePath() {
   if (window.location.pathname !== '/') {
@@ -116,7 +117,13 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([]);
   const [editing, setEditing] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState('');
+  const [stockFilter, setStockFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
+  const [refreshing, setRefreshing] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [authForm, setAuthForm] = useState({ username: '', email: '', password: '' });
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -127,10 +134,62 @@ export default function App() {
   const [notice, setNotice] = useState('');
   const isAuthenticated = Boolean(tokens?.access_token);
   const shouldShowLogin = !isAuthenticated;
+  const visibleProducts = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    return products
+      .filter((product) => {
+        const matchesSearch = !query
+          || `${product.product_name || ''} ${product.description || ''}`.toLocaleLowerCase().includes(query);
+        const quantity = Number(product.quantity) || 0;
+        const matchesStock = stockFilter === 'all'
+          || (stockFilter === 'in-stock' && quantity > 5)
+          || (stockFilter === 'low-stock' && quantity > 0 && quantity <= 5)
+          || (stockFilter === 'out-of-stock' && quantity === 0);
+        return matchesSearch && matchesStock;
+      })
+      .sort((first, second) => {
+        switch (sortBy) {
+          case 'name-asc':
+            return String(first.product_name).localeCompare(String(second.product_name));
+          case 'name-desc':
+            return String(second.product_name).localeCompare(String(first.product_name));
+          case 'price-asc':
+            return Number(first.price) - Number(second.price);
+          case 'price-desc':
+            return Number(second.price) - Number(first.price);
+          case 'quantity-asc':
+            return Number(first.quantity) - Number(second.quantity);
+          case 'quantity-desc':
+            return Number(second.quantity) - Number(first.quantity);
+          default:
+            return Number(second.id) - Number(first.id);
+        }
+      });
+  }, [products, search, sortBy, stockFilter]);
+  const inventoryUnits = products.reduce((total, product) => total + (Number(product.quantity) || 0), 0);
+  const inventoryValue = products.reduce(
+    (total, product) => total + (Number(product.price) || 0) * (Number(product.quantity) || 0),
+    0,
+  );
+  const lowStockCount = products.filter((product) => Number(product.quantity) > 0 && Number(product.quantity) <= 5).length;
+  const outOfStockCount = products.filter((product) => Number(product.quantity) === 0).length;
 
   useEffect(() => {
     normalizePath();
   }, []);
+
+  useEffect(() => {
+    if (!deleteTarget) return undefined;
+
+    function closeOnEscape(event) {
+      if (event.key === 'Escape' && !deleting) {
+        setDeleteTarget(null);
+      }
+    }
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [deleteTarget, deleting]);
 
   useEffect(() => {
     let cancelled = false;
@@ -265,15 +324,31 @@ export default function App() {
     }
   }
 
-  async function deleteProduct(product) {
-    if (!window.confirm(`Delete "${product.product_name}"?`)) return;
+  async function refreshProducts() {
+    setRefreshing(true);
     setError('');
     try {
-      await send(`/api/products/${product.id}`, { method: 'DELETE' });
-      setProducts((current) => current.filter((item) => item.id !== product.id));
-      setNotice('Product deleted.');
+      await loadProducts();
     } catch (requestError) {
       setError(requestError.message);
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  async function deleteProduct() {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
+    setError('');
+    try {
+      await send(`/api/products/${deleteTarget.id}`, { method: 'DELETE' });
+      setProducts((current) => current.filter((item) => item.id !== deleteTarget.id));
+      setNotice(`${deleteTarget.product_name} was deleted.`);
+      setDeleteTarget(null);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -358,21 +433,23 @@ export default function App() {
       <header className="topbar">
         <a className="brand" href="/">
           <span className="brand-mark small">P</span>
-          <span>Product<span className="brand-light">Desk</span></span>
+          <span>Stock<span className="brand-light">room</span></span>
         </a>
         <div className="account">
           <ApiStatus status={apiStatus} />
-          {user?.username && <span className="account-name">{user.username}</span>}
-          <button className="button quiet" onClick={logout}>Log out</button>
+          <span className="account-divider" />
+          <span className="account-avatar">{(user?.username || 'A').slice(0, 1).toUpperCase()}</span>
+          <span className="account-name">{user?.username || 'Administrator'}</span>
+          <button className="button quiet logout-button" onClick={logout}>Log out</button>
         </div>
       </header>
 
       <section className="content">
         <div className="page-heading">
           <div>
-            <p className="eyebrow">INVENTORY</p>
-            <h1>Products</h1>
-            <p className="muted">Manage your products, prices, and available stock.</p>
+            <p className="eyebrow">OVERVIEW <span className="eyebrow-dot">/</span> INVENTORY</p>
+            <h1>Product inventory</h1>
+            <p className="muted">A clear view of your products, stock levels, and inventory value.</p>
           </div>
           <button
             className="button primary"
@@ -380,22 +457,48 @@ export default function App() {
               setEditing(null);
               setShowForm(true);
               setError('');
+              setNotice('');
             }}
           >
-            <span aria-hidden="true">＋</span> Add product
+            <span className="button-plus" aria-hidden="true">+</span> Add product
           </button>
         </div>
 
         {error && <div className="alert error" role="alert">{error}</div>}
         {notice && <div className="alert success">{notice}</div>}
 
+        <section className="stats-grid" aria-label="Inventory summary">
+          <article className="stat-card">
+            <div className="stat-top"><span className="stat-icon blue-icon">P</span><span className="stat-caption">CATALOG</span></div>
+            <p className="stat-value">{products.length}</p>
+            <p className="stat-label">Total products</p>
+          </article>
+          <article className="stat-card">
+            <div className="stat-top"><span className="stat-icon violet-icon">U</span><span className="stat-caption">ON HAND</span></div>
+            <p className="stat-value">{inventoryUnits.toLocaleString()}</p>
+            <p className="stat-label">Units in stock</p>
+          </article>
+          <article className="stat-card">
+            <div className="stat-top"><span className="stat-icon amber-icon">!</span><span className="stat-caption">NEEDS ATTENTION</span></div>
+            <p className="stat-value">{lowStockCount + outOfStockCount}</p>
+            <p className="stat-label">{lowStockCount} low stock · {outOfStockCount} out of stock</p>
+          </article>
+          <article className="stat-card">
+            <div className="stat-top"><span className="stat-icon green-icon">$</span><span className="stat-caption">ESTIMATED VALUE</span></div>
+            <p className="stat-value">{currency.format(inventoryValue)}</p>
+            <p className="stat-label">Based on current stock</p>
+          </article>
+        </section>
+
         {(showForm || editing) && (
-          <section className="panel form-panel">
+          <section className="panel form-panel" aria-label={editing ? 'Edit product' : 'Add product'}>
             <div className="panel-heading">
               <div>
-                <h2>{editing ? 'Edit product' : 'Add a product'}</h2>
-                <p className="muted">Product details are saved to the API database.</p>
+                <p className="eyebrow">{editing ? 'UPDATE CATALOG' : 'NEW CATALOG ITEM'}</p>
+                <h2>{editing ? `Edit ${editing.product_name}` : 'Add a product'}</h2>
+                <p className="muted">Product details are saved securely to your inventory.</p>
               </div>
+              <button className="icon-button" type="button" aria-label="Close product form" onClick={() => { setEditing(null); setShowForm(false); }}>×</button>
             </div>
             <ProductForm
               key={editing?.id || 'new-product'}
@@ -411,61 +514,161 @@ export default function App() {
         )}
 
         <section className="panel">
-          <div className="panel-heading">
-            <div>
-              <h2>Product list</h2>
-              <p className="muted">{products.length} {products.length === 1 ? 'item' : 'items'}</p>
+          <div className="panel-heading inventory-heading">
+            <div className="list-title">
+              <div>
+                <h2>All products</h2>
+                <p className="muted">Browse and manage your catalog</p>
+              </div>
+              <span className="item-count">{visibleProducts.length} of {products.length}</span>
             </div>
+            <button className="button quiet refresh-button" onClick={refreshProducts} disabled={refreshing || loading}>
+              <span className={refreshing ? 'refresh-icon spinning' : 'refresh-icon'} aria-hidden="true">↻</span>
+              {refreshing ? 'Refreshing' : 'Refresh'}
+            </button>
+          </div>
+
+          <div className="inventory-toolbar">
+            <label className="search-field">
+              <span className="search-icon" aria-hidden="true">⌕</span>
+              <span className="sr-only">Search products</span>
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search products or descriptions..."
+              />
+              {search && <button type="button" className="clear-search" onClick={() => setSearch('')} aria-label="Clear search">×</button>}
+            </label>
+            <label className="sort-control">
+              <span>Sort by</span>
+              <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} aria-label="Sort products">
+                <option value="newest">Recently added</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="name-desc">Name: Z to A</option>
+                <option value="price-asc">Price: low to high</option>
+                <option value="price-desc">Price: high to low</option>
+                <option value="quantity-asc">Quantity: low to high</option>
+                <option value="quantity-desc">Quantity: high to low</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="filter-tabs" role="group" aria-label="Filter products by stock">
+            {[
+              ['all', 'All products', products.length],
+              ['in-stock', 'In stock', products.filter((product) => Number(product.quantity) > 5).length],
+              ['low-stock', 'Low stock', lowStockCount],
+              ['out-of-stock', 'Out of stock', outOfStockCount],
+            ].map(([filter, label, count]) => (
+              <button
+                className={`filter-tab${stockFilter === filter ? ' active' : ''}`}
+                key={filter}
+                type="button"
+                onClick={() => setStockFilter(filter)}
+                aria-pressed={stockFilter === filter}
+              >
+                {label}<span>{count}</span>
+              </button>
+            ))}
           </div>
           {loading ? (
-            <div className="empty-state">Loading products…</div>
+            <div className="empty-state"><span className="loading-spinner" />Loading your inventory…</div>
           ) : products.length === 0 ? (
-            <div className="empty-state">No products yet. Add your first product to get started.</div>
+            <div className="empty-state">
+              <span className="empty-icon">P</span>
+              <strong>Your inventory is ready for its first product</strong>
+              <span>Add products to track stock and see your inventory summary here.</span>
+              <button className="button primary" onClick={() => { setEditing(null); setShowForm(true); }}>Add your first product</button>
+            </div>
+          ) : visibleProducts.length === 0 ? (
+            <div className="empty-state">
+              <span className="empty-icon">⌕</span>
+              <strong>No matching products</strong>
+              <span>Try a different search or stock filter.</span>
+              <button className="button quiet" onClick={() => { setSearch(''); setStockFilter('all'); }}>Clear filters</button>
+            </div>
           ) : (
             <div className="table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Product</th>
-                    <th>Description</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th><span className="sr-only">Actions</span></th>
+                    <th>Product details</th>
+                    <th>Unit price</th>
+                    <th>Stock level</th>
+                    <th>Inventory value</th>
+                    <th className="actions-heading">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
+                  {visibleProducts.map((product) => {
+                    const quantity = Number(product.quantity) || 0;
+                    const stockStatus = quantity === 0 ? 'out' : quantity <= 5 ? 'low' : 'healthy';
+                    return (
                     <tr key={product.id}>
-                      <td className="product-name">{product.product_name}</td>
-                      <td className="description">{product.description || '—'}</td>
-                      <td>${Number(product.price).toFixed(2)}</td>
-                      <td><span className="quantity-badge">{product.quantity}</span></td>
+                      <td>
+                        <div className="product-cell">
+                          <span className="product-avatar">{String(product.product_name || 'P').slice(0, 1).toUpperCase()}</span>
+                          <span className="product-copy">
+                            <strong className="product-name">{product.product_name}</strong>
+                            <span className="description">{product.description || 'No description'}</span>
+                          </span>
+                        </div>
+                      </td>
+                      <td className="price-cell">{currency.format(Number(product.price) || 0)}</td>
+                      <td>
+                        <span className={`stock-badge ${stockStatus}`}>
+                          <span className="stock-dot" />{quantity === 0 ? 'Out of stock' : quantity <= 5 ? 'Low stock' : 'In stock'}
+                        </span>
+                        <span className="stock-quantity">{quantity.toLocaleString()} units</span>
+                      </td>
+                      <td className="price-cell">{currency.format((Number(product.price) || 0) * quantity)}</td>
                       <td>
                         <div className="row-actions">
                           <button
-                            className="link-button"
+                            className="action-button edit-action"
                             onClick={() => {
                               setEditing(product);
                               setShowForm(false);
                               setError('');
+                              setNotice('');
                             }}
                           >
-                            Edit
+                            <span aria-hidden="true">✎</span> Edit
                           </button>
-                          <button className="link-button danger-link" onClick={() => deleteProduct(product)}>
-                            Delete
+                          <button className="action-button delete-action" onClick={() => { setDeleteTarget(product); setError(''); }}>
+                            <span aria-hidden="true">⌫</span> Delete
                           </button>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           )}
         </section>
-        <footer>ProductDesk · LavaLust API</footer>
+        <footer><span className="footer-brand">Stockroom</span><span>Inventory management</span><span>·</span><span>{new Date().getFullYear()}</span></footer>
       </section>
+      {deleteTarget && (
+        <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget && !deleting) setDeleteTarget(null); }}>
+          <section className="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-title" aria-describedby="delete-description">
+            <div className="confirm-icon">!</div>
+            <h2 id="delete-title">Delete this product?</h2>
+            <p id="delete-description">
+              <strong>{deleteTarget.product_name}</strong> will be permanently removed from your inventory. This action cannot be undone.
+            </p>
+            {error && <div className="alert error modal-error" role="alert">{error}</div>}
+            <div className="confirm-actions">
+              <button className="button quiet" onClick={() => setDeleteTarget(null)} disabled={deleting}>Keep product</button>
+              <button className="button danger-button" onClick={deleteProduct} disabled={deleting}>
+                {deleting ? 'Deleting…' : 'Delete product'}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
