@@ -150,6 +150,7 @@ $config['allow_origin'] = implode(',', array_unique(array_filter(array_merge(
     [
         'https://carsocho-brian-lavalust-frontend.onrender.com',
         'https://carsocho-brian-lavalust-static-site.onrender.com',
+        'https://api-tester.marasigan.dev',
     ],
     array_map('trim', explode(',', $frontend_origins))
 ))));

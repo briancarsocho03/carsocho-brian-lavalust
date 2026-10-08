@@ -15,6 +15,7 @@ class HealthController extends Controller
             'frontend' => 'https://carsocho-brian-lavalust-static-site.onrender.com',
             'endpoints' => [
                 'POST   /api/auth/login' => 'Authenticate and receive JWT tokens',
+                'POST   /api/login' => 'Login alias for API testers and clients',
                 'POST   /api/auth/logout' => 'Revoke the refresh token',
                 'POST   /api/auth/refresh' => 'Refresh the access token',
                 'GET    /api/health' => 'Check API and database health',
