@@ -44,7 +44,7 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 /** @var object $router **/
 
-$router->get('/', 'AuthController::login');
+$router->get('/', 'HealthController::info');
 
 $router->get('/student', 'StudentController::index');
 
